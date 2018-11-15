@@ -11,6 +11,8 @@ type Page struct {
 	Name        string `json:"name"`
 	Description string `json:"description"`
 	VersionId   int    `json:"versionId"` //加入版本
+	ModuleId    int    `json:"moduleId"`
+	Status      int    `json:"status"`
 	CreateTime  string `json:"createTime"`
 	UpdateTime  string `json:"updateTime"`
 }
@@ -35,7 +37,7 @@ func (p *PageModel) CreatePage(db *sql.DB, name string, description string, key 
 func (p *PageModel) findPageById(db *sql.DB, id int) (page Page, err error) {
 	selectSql := "select * from mb_page where id = ?"
 	resultRow := db.QueryRow(selectSql, page.Id)
-	error := resultRow.Scan(&page.Id, &page.Name, &page.Description, &page.Key, &page.CreateTime, &page.UpdateTime)
+	error := resultRow.Scan(&page.Id, &page.Key, &page.Name, &page.Description, &page.VersionId, &page.ModuleId, &page.Status, &page.CreateTime, &page.UpdateTime)
 	if err != nil {
 		return Page{}, err
 	}
