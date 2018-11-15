@@ -17,6 +17,7 @@ func main() {
 	r.Use(cors.Default())
 	mybittDb := db.CreateMyBittDbConnection()
 
+	//用户相关的接口
 	userController := controllers.NewUserController()
 	userRouter := r.Group("/user")
 	{
@@ -30,6 +31,7 @@ func main() {
 		})
 	}
 
+	//项目相关的接口
 	projcetController := controllers.NewProjectController()
 	projectRouter := r.Group("/project")
 	{
@@ -38,12 +40,7 @@ func main() {
 		projectRouter.POST("/update", projcetController.UpdateProject(mybittDb))
 	}
 
-	pageController := controllers.NewPageController()
-	pageRouter := r.Group("/page")
-	{
-		pageRouter.POST("/create", pageController.Create(mybittDb))
-	}
-
+	//版本相关的接口
 	versionController := controllers.NewVersionController()
 	versionRouter := r.Group("/version")
 	{
@@ -51,5 +48,21 @@ func main() {
 		versionRouter.POST("/create", versionController.Create(mybittDb))      //创建版本
 		versionRouter.POST("/delete", versionController.Delete(mybittDb))      // 删除版本
 	}
+
+	//页面相关的接口
+	pageController := controllers.NewPageController()
+	pageRouter := r.Group("/page")
+	{
+		pageRouter.POST("/create", pageController.Create(mybittDb))
+	}
+
+	//模块相关的接口
+	moduleController := controllers.NewModuleController()
+	moduleRouter := r.Group("/module")
+	{
+		moduleRouter.POST("/create", moduleController.Create(mybittDb))
+		moduleRouter.POST("/update", moduleController.Update(mybittDb))                       
+	}
+
 	r.Run(":8082")
 }

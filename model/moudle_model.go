@@ -21,6 +21,9 @@ func NewModuleModel() ModuleModel {
 	return ModuleModel{}
 }
 
+/**
+ * 创建模块
+ */
 func (model *ModuleModel) CrateModule(db *sql.DB, name string, description string, projectId int, versionId int) (Module, error) {
 	insertSql := "insert into mb_module (name , description , project_id , version_id) values (? , ? , ? , ?)"
 	resultRow, err := db.Exec(insertSql, name, description, projectId, versionId)
@@ -34,6 +37,25 @@ func (model *ModuleModel) CrateModule(db *sql.DB, name string, description strin
 	return model.findById(db, int(lastInsertId))
 }
 
+/**
+ * 更新模块信息
+ */
+func (model *ModuleModel) UpdateModule(db *sql.DB, id int, name string, description string, projectId int, versionId int, status int) (Module, error) {
+	updateSql := "update mb_module set name = ?,description = ?,projectId = ?,versionId = ?,status = ? where id = ?"
+	_, err := db.Exec(updateSql, name, description, projectId, versionId, status, id)
+	if err != nil {
+		return Module{}, err
+	}
+	result, err := model.findById(db, id)
+	if err != nil {
+		return Module{}, err
+	}
+	return result, nil
+}
+
+/**
+ * 通过id查找模块信息
+ */
 func (model *ModuleModel) findById(db *sql.DB, id int) (Module, error) {
 	selectSql := "select * from mb_module where id = ?"
 	resultRow := db.QueryRow(selectSql, id)
