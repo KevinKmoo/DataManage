@@ -2,7 +2,6 @@ package model
 
 import (
 	"database/sql"
-	"log"
 )
 
 type Page struct {
@@ -20,11 +19,13 @@ type Page struct {
 type PageModel struct {
 }
 
-func (p *PageModel) CreatePage(db *sql.DB, name string, description string, key string, versionId int) (page Page, err error) {
-	insertSql := "insert into mb_page (name , description , key , version_id) values (?,?,?,?)"
-	result, err := db.Exec(insertSql, name, description, key, versionId)
+/**
+ * 创建页面
+ */
+func (p *PageModel) CreatePage(db *sql.DB, name string, description string, key string, versionId int, moduleId int) (page Page, err error) {
+	insertSql := "insert into mb_page (name , description , key , version_id , moduleId) values (?,?,?,?,?)"
+	result, err := db.Exec(insertSql, name, description, key, versionId, moduleId)
 	if err != nil {
-		log.Fatal(err)
 		return Page{}, err
 	}
 	insertId, err := result.LastInsertId()
@@ -34,6 +35,31 @@ func (p *PageModel) CreatePage(db *sql.DB, name string, description string, key 
 	return p.findPageById(db, int(insertId))
 }
 
+/**
+ * 更新页面
+ */
+func (model *PageModel) UpdatePage(db *sql.DB, id int, name string, description string) (Page, error) {
+	page, err := model.findPageById(db, id)
+	if err != nil {
+		return Page{}, err
+	}
+	if name != "" {
+		page.Name = name
+	}
+	if description != "" {
+		page.Description = description
+	}
+	updateSql := "update mb_page set name = ?,description = ? where id = ?"
+	_, err = db.Exec(updateSql, page.Name, page.Description, id)
+	if err != nil {
+		return Page{}, err
+	}
+	return page, nil
+}
+
+/**
+ * 通过id查找页面信息
+ */
 func (p *PageModel) findPageById(db *sql.DB, id int) (page Page, err error) {
 	selectSql := "select * from mb_page where id = ?"
 	resultRow := db.QueryRow(selectSql, page.Id)

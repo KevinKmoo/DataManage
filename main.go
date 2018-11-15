@@ -53,7 +53,8 @@ func main() {
 	pageController := controllers.NewPageController()
 	pageRouter := r.Group("/page")
 	{
-		pageRouter.POST("/create", pageController.Create(mybittDb))
+		pageRouter.POST("/create", pageController.Create(mybittDb)) //创建页面
+		pageRouter.POST("/update", pageController.Update(mybittDb)) //更新页面数据
 	}
 
 	//模块相关的接口
@@ -61,7 +62,7 @@ func main() {
 	moduleRouter := r.Group("/module")
 	{
 		moduleRouter.POST("/create", moduleController.Create(mybittDb))
-		moduleRouter.POST("/update", moduleController.Update(mybittDb))                       
+		moduleRouter.POST("/update", moduleController.Update(mybittDb))
 	}
 
 	r.Run(":8082")
