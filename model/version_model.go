@@ -5,12 +5,12 @@ import (
 )
 
 type Version struct {
-	Id          string `json:"id"`
+	Id          int    `json:"id"`
 	Name        string `json:"name"`
 	Description string `json:"description"`
 	PublishTime string `json:"publishTime"`
 	CreateTime  string `json:"createTime"`
-	UpdateTime  string `json:"UpdateTime"`
+	UpdateTime  string `json:"updateTime"`
 }
 
 type VersionModel struct {
@@ -65,6 +65,28 @@ func (model *VersionModel) DeleteVersionById(db *sql.DB, id int) error {
 		return err
 	}
 	return nil
+}
+
+/**
+ * 更新版本信息
+ */
+func (model *VersionModel) UpdateVersion(db *sql.DB, id int, name string, description string) (Version, error) {
+	needUpdateVersion, err := model.findById(db, id)
+	if err != nil {
+		return Version{}, err
+	}
+	if name != "" {
+		needUpdateVersion.Name = name
+	}
+	if description != "" {
+		needUpdateVersion.Description = description
+	}
+	updateSql := "update mb_version set name = ?,description = ? where id = ?"
+	_, err = db.Exec(updateSql, name, description, id)
+	if err != nil {
+		return Version{}, err
+	}
+	return needUpdateVersion, nil
 }
 
 /**

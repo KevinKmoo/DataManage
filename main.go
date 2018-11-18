@@ -45,6 +45,7 @@ func main() {
 	versionRouter := r.Group("/version")
 	{
 		versionRouter.POST("/list", versionController.GetAllVersion(mybittDb)) //版本列表
+		versionRouter.POST("/update", versionController.Update(mybittDb))      //更新版本
 		versionRouter.POST("/create", versionController.Create(mybittDb))      //创建版本
 		versionRouter.POST("/delete", versionController.Delete(mybittDb))      // 删除版本
 	}

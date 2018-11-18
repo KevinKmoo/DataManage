@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"database/sql"
+	"log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -49,6 +50,26 @@ func (controller *VersionController) Create(db *sql.DB) gin.HandlerFunc {
 			return
 		}
 		c.JSON(http.StatusOK, model.ResultSuccess("成功", version))
+	}
+}
+
+/**
+ * 更新版本
+ */
+func (controller *VersionController) Update(db *sql.DB) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		var updateVersionDto request.UpdateVersionDto
+		err := c.BindJSON(&updateVersionDto)
+		if err != nil {
+			c.JSON(http.StatusOK, model.ResultFail("参数有误", nil))
+			return
+		}
+		version, err := versionModel.UpdateVersion(db, updateVersionDto.Id, updateVersionDto.Name, updateVersionDto.Description)
+		if err != nil {
+			c.JSON(http.StatusOK, model.ResultFail(err.Error(), nil))
+			return
+		}
+		c.JSON(http.StatusOK, model.ResultSuccess("Success", version))
 	}
 }
 
