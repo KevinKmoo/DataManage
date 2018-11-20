@@ -8,9 +8,15 @@ type Version struct {
 	Id          int    `json:"id"`
 	Name        string `json:"name"`
 	Description string `json:"description"`
+	ProjectId   int    `json:"projectId"`
 	PublishTime string `json:"publishTime"`
 	CreateTime  string `json:"createTime"`
 	UpdateTime  string `json:"updateTime"`
+}
+
+type VersionWithProjectName struct {
+	Version
+	ProjectName string `json:"projectName"`
 }
 
 type VersionModel struct {
@@ -19,9 +25,9 @@ type VersionModel struct {
 /**
  * 创建版本
  */
-func (model *VersionModel) CreateVersion(db *sql.DB, name string, description string, publishTime string) (Version, error) {
-	insertSql := "insert into mb_version (name, description, publish_time) values (?,?,?)"
-	resultRow, err := db.Exec(insertSql, name, description, publishTime)
+func (model *VersionModel) CreateVersion(db *sql.DB, name string, description string, projectId int, publishTime string) (Version, error) {
+	insertSql := "insert into mb_version (name, description, project_id, publish_time) values (?,?,?,?)"
+	resultRow, err := db.Exec(insertSql, name, description, projectId, publishTime)
 	if err != nil {
 		return Version{}, err
 	}
@@ -44,7 +50,30 @@ func (model *VersionModel) FindAllVersion(db *sql.DB) ([]Version, error) {
 	var result []Version
 	for rows.Next() {
 		var version Version
-		err = rows.Scan(&version.Id, &version.Name, &version.Description, &version.PublishTime, &version.CreateTime, &version.UpdateTime)
+		err = rows.Scan(&version.Id, &version.Name, &version.Description, &version.ProjectId, &version.PublishTime, &version.CreateTime, &version.UpdateTime)
+
+		if err != nil {
+			return nil, err
+		}
+
+		result = append(result, version)
+	}
+	return result, nil
+}
+
+/**
+ * 通过项目id查找版本列表
+ */
+func (model *VersionModel) FindVerionListByProjectId(db *sql.DB, projectId int) ([]VersionWithProjectName, error) {
+	selectSql := "select version.*,project.project_name from mb_version as version left join mb_project as project on version.project_id = project.id where version.project_id = ?"
+	rows, err := db.Query(selectSql, projectId)
+	if err != nil {
+		return nil, err
+	}
+	var result []VersionWithProjectName
+	for rows.Next() {
+		var version VersionWithProjectName
+		err = rows.Scan(&version.Id, &version.Name, &version.Description, &version.ProjectId, &version.PublishTime, &version.CreateTime, &version.UpdateTime, &version.ProjectName)
 
 		if err != nil {
 			return nil, err

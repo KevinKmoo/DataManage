@@ -13,8 +13,11 @@ type UpdateModuleDto struct {
 	Description string `json:"description"`
 	ProjectId   int    `json:"projectId"`
 	VersionId   int    `json:"versionId"`
-	Status      int    `json:"status"`
 }
 
 type DeleteModuleDto struct {
+}
+
+type GetModuleListDto struct {
+	ProjectId int `json:"projectId"`
 }

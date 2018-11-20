@@ -51,11 +51,33 @@ func (controller *ModuleController) Update(db *sql.DB) gin.HandlerFunc {
 			c.JSON(http.StatusOK, model.ResultFail(err.Error(), nil))
 			return
 		}
-		module, err := moduleModle.UpdateModule(db, updateModuleDto.Id, updateModuleDto.Name, updateModuleDto.Description, updateModuleDto.ProjectId, updateModuleDto.VersionId, updateModuleDto.Status)
+		module, err := moduleModle.UpdateModule(db, updateModuleDto.Id, updateModuleDto.Name, updateModuleDto.Description, updateModuleDto.ProjectId, updateModuleDto.VersionId)
 		if err != nil {
 			c.JSON(http.StatusOK, model.ResultFail(err.Error(), nil))
 			return
 		}
-		c.JSON(http.StatusOK, module)
+		c.JSON(http.StatusOK, model.ResultSuccess("success", module))
+	}
+}
+
+/**
+ * 获取一个项目下的模块列表
+ */
+func (controller *ModuleController) List(db *sql.DB) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		var getProjectModuleListDto request.GetModuleListDto
+		err := c.BindJSON(&getProjectModuleListDto)
+		if err != nil {
+			c.JSON(http.StatusOK, model.ResultFail(err.Error(), nil))
+			return
+		}
+
+		moduleList, err := moduleModle.GetModuleListByProjectId(db, getProjectModuleListDto.ProjectId)
+		if err != nil {
+			c.JSON(http.StatusOK, model.ResultFail(err.Error(), nil))
+			return
+		}
+
+		c.JSON(http.StatusOK, model.ResultSuccess("Success", moduleList))
 	}
 }

@@ -44,10 +44,11 @@ func main() {
 	versionController := controllers.NewVersionController()
 	versionRouter := r.Group("/version")
 	{
-		versionRouter.POST("/list", versionController.GetAllVersion(mybittDb)) //版本列表
-		versionRouter.POST("/update", versionController.Update(mybittDb))      //更新版本
-		versionRouter.POST("/create", versionController.Create(mybittDb))      //创建版本
-		versionRouter.POST("/delete", versionController.Delete(mybittDb))      // 删除版本
+		versionRouter.POST("/list", versionController.GetAllVersion(mybittDb))                           //版本列表
+		versionRouter.POST("/getListByProjectId", versionController.GetVersionListByProjectId(mybittDb)) //获取项目下的所有版本
+		versionRouter.POST("/update", versionController.Update(mybittDb))                                //更新版本
+		versionRouter.POST("/create", versionController.Create(mybittDb))                                //创建版本
+		versionRouter.POST("/delete", versionController.Delete(mybittDb))                                // 删除版本
 	}
 
 	//页面相关的接口
@@ -64,6 +65,7 @@ func main() {
 	{
 		moduleRouter.POST("/create", moduleController.Create(mybittDb))
 		moduleRouter.POST("/update", moduleController.Update(mybittDb))
+		moduleRouter.POST("/list", moduleController.List(mybittDb))
 	}
 
 	r.Run(":8082")

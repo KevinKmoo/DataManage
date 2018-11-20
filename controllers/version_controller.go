@@ -2,7 +2,6 @@ package controllers
 
 import (
 	"database/sql"
-	"log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -26,10 +25,30 @@ func (controller *VersionController) GetAllVersion(db *sql.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		allVersions, err := versionModel.FindAllVersion(db)
 		if err != nil {
-			c.JSON(http.StatusOK, model.ResultFail("未知错误", nil))
+			c.JSON(http.StatusOK, model.ResultFail(err.Error(), nil))
 			return
 		}
 		c.JSON(http.StatusOK, model.ResultSuccess("成功", allVersions))
+	}
+}
+
+/**
+ * 查找项目下的版本列表
+ */
+func (controller *VersionController) GetVersionListByProjectId(db *sql.DB) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		var getVersionByProjectIdDto request.GetVersionListByProjectIdDto
+		err := c.BindJSON(&getVersionByProjectIdDto)
+		if err != nil {
+			c.JSON(http.StatusOK, model.ResultFail(err.Error(), nil))
+			return
+		}
+		versionList, err := versionModel.FindVerionListByProjectId(db, getVersionByProjectIdDto.ProjectId)
+		if err != nil {
+			c.JSON(http.StatusOK, model.ResultFail(err.Error(), nil))
+			return
+		}
+		c.JSON(http.StatusOK, model.ResultSuccess("Success", versionList))
 	}
 }
 
@@ -39,14 +58,14 @@ func (controller *VersionController) GetAllVersion(db *sql.DB) gin.HandlerFunc {
 func (controller *VersionController) Create(db *sql.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var createVersionDto request.CreateVersionDto
-		err := c.ShouldBind(&createVersionDto)
+		err := c.BindJSON(&createVersionDto)
 		if err != nil {
 			c.JSON(http.StatusOK, model.ResultFail("参数有误", nil))
 			return
 		}
-		version, err := versionModel.CreateVersion(db, createVersionDto.Name, createVersionDto.Description, createVersionDto.PublishTime)
+		version, err := versionModel.CreateVersion(db, createVersionDto.Name, createVersionDto.Description, createVersionDto.ProjectId, createVersionDto.PublishTime)
 		if err != nil {
-			c.JSON(http.StatusOK, model.ResultFail("未知错误", nil))
+			c.JSON(http.StatusOK, model.ResultFail(err.Error(), nil))
 			return
 		}
 		c.JSON(http.StatusOK, model.ResultSuccess("成功", version))
