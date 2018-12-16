@@ -57,6 +57,7 @@ func main() {
 	{
 		pageRouter.POST("/create", pageController.Create(mybittDb)) //创建页面
 		pageRouter.POST("/update", pageController.Update(mybittDb)) //更新页面数据
+		pageRouter.POST("/list", pageController.List(mybittDb))     //页面列表
 	}
 
 	//模块相关的接口

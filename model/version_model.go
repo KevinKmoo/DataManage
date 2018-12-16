@@ -26,7 +26,7 @@ type VersionModel struct {
  * 创建版本
  */
 func (model *VersionModel) CreateVersion(db *sql.DB, name string, description string, projectId int, publishTime string) (Version, error) {
-	insertSql := "insert into mb_version (name, description, project_id, publish_time) values (?,?,?,?)"
+	insertSql := "insert into mb_version (version_name, description, project_id, publish_time) values (?,?,?,?)"
 	resultRow, err := db.Exec(insertSql, name, description, projectId, publishTime)
 	if err != nil {
 		return Version{}, err
@@ -110,7 +110,7 @@ func (model *VersionModel) UpdateVersion(db *sql.DB, id int, name string, descri
 	if description != "" {
 		needUpdateVersion.Description = description
 	}
-	updateSql := "update mb_version set name = ?,description = ? where id = ?"
+	updateSql := "update mb_version set version_name = ?,description = ? where id = ?"
 	_, err = db.Exec(updateSql, name, description, id)
 	if err != nil {
 		return Version{}, err
@@ -125,7 +125,7 @@ func (model *VersionModel) findById(db *sql.DB, id int) (Version, error) {
 	selectSql := "select * from mb_version where id = ?"
 	resultRow := db.QueryRow(selectSql, id)
 	var version Version
-	err := resultRow.Scan(&version.Id, &version.Name, &version.Description, &version.PublishTime, &version.CreateTime, &version.UpdateTime)
+	err := resultRow.Scan(&version.Id, &version.Name, &version.Description, &version.ProjectId, &version.PublishTime, &version.CreateTime, &version.UpdateTime)
 	if err != nil {
 		return Version{}, err
 	}

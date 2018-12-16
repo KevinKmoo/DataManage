@@ -16,14 +16,20 @@ type Page struct {
 	UpdateTime  string `json:"updateTime"`
 }
 
+type PageListBean struct {
+	Page
+	ModuleName  string `json:"moduleName"`
+	VersionName string `json:"versionName"`
+}
+
 type PageModel struct {
 }
 
 /**
  * 创建页面
  */
-func (p *PageModel) CreatePage(db *sql.DB, name string, description string, key string, versionId int, moduleId int) (page Page, err error) {
-	insertSql := "insert into mb_page (name , description , key , version_id , moduleId) values (?,?,?,?,?)"
+func (p *PageModel) CreatePage(db *sql.DB, name string, key string, description string, versionId int, moduleId int) (page Page, err error) {
+	insertSql := "insert into mb_page (page_name , description , page_key , version_id , module_id) values (?,?,?,?,?)"
 	result, err := db.Exec(insertSql, name, description, key, versionId, moduleId)
 	if err != nil {
 		return Page{}, err
@@ -49,12 +55,47 @@ func (model *PageModel) UpdatePage(db *sql.DB, id int, name string, description 
 	if description != "" {
 		page.Description = description
 	}
-	updateSql := "update mb_page set name = ?,description = ? where id = ?"
+	updateSql := "update mb_page set page_name = ?,description = ? where id = ?"
 	_, err = db.Exec(updateSql, page.Name, page.Description, id)
 	if err != nil {
 		return Page{}, err
 	}
 	return page, nil
+}
+
+/**
+ * 页面列表
+ */
+func (model *PageModel) PageList(db *sql.DB, projectId int, moduelId int, versionId int, key string) ([]PageListBean, error) {
+	var selectSql string
+	selectSql = "select page.*,module.module_name as moduleName,version.version_name as versionName from mb_page as page " +
+		"left join mb_module as module on page.module_id = module.id " +
+		"left join mb_version as version on page.version_id = version.id"
+	var resultRows *sql.Rows
+	var err error
+	if moduelId != 0 && versionId == 0 {
+		selectSql += " where page.module_id = ? and page.page_name like ?"
+		resultRows, err = db.Query(selectSql, moduelId, "%"+key+"%")
+	} else if moduelId == 0 && versionId != 0 {
+		selectSql += " and page.version_id = ? and page.page_name like ?"
+		resultRows, err = db.Query(selectSql, versionId, "%"+key+"%")
+	} else if moduelId != 0 && versionId != 0 {
+		selectSql += " where page.module_id = ? and page.version_id = ? and page.page_name like ?"
+		resultRows, err = db.Query(selectSql, moduelId, versionId, "%"+key+"%")
+	}
+	if err != nil {
+		return nil, err
+	}
+	result := []PageListBean{}
+	for resultRows.Next() {
+		temp := PageListBean{}
+		err = resultRows.Scan(&temp.Id, &temp.Key, &temp.Name, &temp.Description, &temp.VersionId, &temp.ModuleId, &temp.Status, &temp.CreateTime, &temp.UpdateTime, &temp.ModuleName, &temp.VersionName)
+		if err != nil {
+			return nil, err
+		}
+		result = append(result, temp)
+	}
+	return result, nil
 }
 
 /**

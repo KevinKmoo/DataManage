@@ -13,3 +13,10 @@ type UpdatePageDto struct {
 	Name        string `json:"name"`
 	Description string `json:"description"`
 }
+
+type PageListDto struct {
+	ProjectId int    `json:"projectId" binding:"required"`
+	ModuelId  int    `json:"moduleId"`
+	VersionId int    `json:"versionId"`
+	Key       string `json:"key"` //搜索关键字
+}

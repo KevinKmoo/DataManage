@@ -30,7 +30,7 @@ func NewModuleModel() ModuleModel {
  * 创建模块
  */
 func (model *ModuleModel) CrateModule(db *sql.DB, name string, description string, projectId int, versionId int) (Module, error) {
-	insertSql := "insert into mb_module (name , description , project_id , version_id) values (? , ? , ? , ?)"
+	insertSql := "insert into mb_module (module_name , description , project_id , version_id) values (? , ? , ? , ?)"
 	resultRow, err := db.Exec(insertSql, name, description, projectId, versionId)
 	if err != nil {
 		return Module{}, err
@@ -46,7 +46,7 @@ func (model *ModuleModel) CrateModule(db *sql.DB, name string, description strin
  * 更新模块信息
  */
 func (model *ModuleModel) UpdateModule(db *sql.DB, id int, name string, description string, projectId int, versionId int) (Module, error) {
-	updateSql := "update mb_module set name = ?,description = ?,project_id = ?,version_id = ? where id = ?"
+	updateSql := "update mb_module set module_name = ?,description = ?,project_id = ?,version_id = ? where id = ?"
 	result, err := model.findById(db, id)
 	if err != nil {
 		return Module{}, err

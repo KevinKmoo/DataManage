@@ -59,3 +59,23 @@ func (controller *PageController) Update(db *sql.DB) gin.HandlerFunc {
 		c.JSON(http.StatusOK, model.ResultSuccess("Success", page))
 	}
 }
+
+/**
+ * 获取页面的列表
+ */
+func (controller *PageController) List(db *sql.DB) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		var pageListDto request.PageListDto
+		err := c.ShouldBindJSON(&pageListDto)
+		if err != nil {
+			c.JSON(http.StatusOK, model.ResultFail(err.Error(), nil))
+			return
+		}
+		result, err := pageModel.PageList(db, pageListDto.ProjectId, pageListDto.ModuelId, pageListDto.VersionId, pageListDto.Key)
+		if err != nil {
+			c.JSON(http.StatusOK, model.ResultFail(err.Error(), nil))
+			return
+		}
+		c.JSON(http.StatusOK, model.ResultSuccess("Success", result))
+	}
+}
